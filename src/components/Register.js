@@ -152,10 +152,10 @@ function Register() {
     }
 
     const userData = {
-      eposta: email,
-      kullanici_adi: username,
-      sifre: password,
-      telefon: phone,
+      email: email,
+      username: username,
+      pass: password,
+      phone: phone,
       last_login: lastLogin,
       created_at: createdAt,
     };

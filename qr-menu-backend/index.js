@@ -46,9 +46,9 @@ app.get('/getUsers', (req, res) => { try {
 
 
 app.post('/api/register', async (req, res) => {
-  const { eposta, kullanici_adi, telefon, sifre } = req.body;
+  const { email, username, phone, pass } = req.body;
 
-  if (!eposta || !kullanici_adi || !telefon || !sifre) {
+  if (!email || !username || !phone || !pass) {
     return res.status(400).send({
       success: false,
       message: 'Tüm alanlar doldurulmalıdır.',
@@ -57,11 +57,11 @@ app.post('/api/register', async (req, res) => {
 
   try {
     // Şifreyi hash'leyin
-    const hashedPassword = await bcrypt.hash(sifre, 10);
+    const hashedPassword = await bcrypt.hash(pass, 10);
 
     // Veritabanına ekleyin
-    const query = 'INSERT INTO users (eposta, kullanici_adi, telefon, sifre, last_login, created_at) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING *';
-    const values = [eposta, kullanici_adi, telefon, hashedPassword];
+    const query = 'INSERT INTO users (email, username, phone, pass, last_login, created_at) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING *';
+    const values = [email, username, phone, hashedPassword];
     const result = await pool.query(query, values);
 
     res.status(201).json({
@@ -79,13 +79,13 @@ app.post('/api/register', async (req, res) => {
   }
 });
 app.post('/login', async (req, res) => {
-  const { eposta, sifre } = req.body;
-  console.log('Gelen veriler:', { eposta, sifre }); // Gelen veriyi kontrol edin
+  const { email, pass } = req.body;
+  
 
   try {
     // Kullanıcıyı eposta ile veritabanından al
-    const query = 'SELECT * FROM users WHERE eposta = $1';
-    const values = [eposta];
+    const query = 'SELECT * FROM users WHERE email = $1';
+    const values = [email];
     const result = await pool.query(query, values);
     console.log('Veritabanı sonucu:', result.rows); // Veritabanı sonucunu kontrol edin
 
@@ -93,7 +93,7 @@ app.post('/login', async (req, res) => {
       const user = result.rows[0];
 
       // Şifreyi karşılaştır
-      const isMatch = await bcrypt.compare(sifre, user.sifre);
+      const isMatch = await bcrypt.compare(pass, user.pass);
       if (isMatch) {
         // Kullanıcı giriş yaptıktan sonra last_login sütununu güncelle
         const updateLastLoginQuery = 'UPDATE users SET last_login = NOW() WHERE id = $1';
@@ -113,16 +113,17 @@ app.post('/login', async (req, res) => {
 });
 
   app.post('/api/restaurant', async (req, res) => {
-    const { firma_isim, firma_tel, firma_adres, firma_hakkinda } = req.body;
+    const { company_name, phone, adress, description } = req.body;
 
-    if (!firma_isim) {
-        return res.status(400).send({ message: firma_isim, firma_tel,firma_adres,firma_hakkinda });
+    if (!company_name) {
+        return res.status(400).send({ message: company_name, phone,adress,description });
     }
 
     // Burada veritabanınıza kaydedebilirsiniz.
     try {
-        const query = 'INSERT INTO firma (firma_isim, firma_tel, firma_adres, firma_hakkinda) VALUES ($1, $2, $3, $4) RETURNING *';
-        const values = [firma_isim, firma_tel, firma_adres, firma_hakkinda];
+        const isactive = true;
+        const query = 'INSERT INTO company (company_name, phone, address, description,isactive) VALUES ($1, $2, $3, $4,$5) RETURNING *';
+        const values = [company_name, phone, adress, description,isactive];
         const result = await pool.query(query, values);
         res.status(201).send({
             message: 'Kafe bilgileri başarıyla kaydedildi!',

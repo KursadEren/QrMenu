@@ -19,12 +19,12 @@ export const AuthProvider = ({ children }) => {
     try {
       // Backend'e giriş isteği gönderme
       const response = await axios.post('http://localhost:5000/login', {
-        eposta: email,
-        sifre: password,
+        email: email,
+        pass: password,
       });
 
       if (response.data.success) {
-        const userData = { email: response.data.user.eposta };
+        const userData = { email: response.data.user.email };
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
         navigate('/'); // Giriş yapıldıktan sonra ana sayfaya yönlendirme

@@ -89,10 +89,10 @@ function RestaurantInfo() {
       
     try {
       const response = await axios.post('http://localhost:5000/api/restaurant', {
-        firma_isim:restaurantName,
-        firma_tel:phoneNumber,
-        firma_adres:address,
-        firma_hakkinda:description,
+        company_name:restaurantName,
+        phone:phoneNumber,
+        adress:address,
+        description:description,
       });
       alert(response.data.message)
       setRestaurantName('');

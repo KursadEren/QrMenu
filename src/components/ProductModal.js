@@ -143,17 +143,41 @@ function ProductModal({ isOpen, onClose, currentMenu, menuId }) {
   }, [menuId, menus]);
 
   // Handle image upload
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const isImage = file && file['type'].split('/')[0] === 'image';
-      if (isImage) {
-        setProductImage(URL.createObjectURL(file));
-      } else {
-        alert('Lütfen geçerli bir resim dosyası yükleyin.');
-      }
+  // Handle image upload
+const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const isImage = file && file['type'].split('/')[0] === 'image';
+    if (isImage) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProductImage(reader.result);  // Görseli Base64 formatına çevirip kaydetme
+      };
+      reader.readAsDataURL(file);  // Base64 formatına çevir
+    } else {
+      alert('Lütfen geçerli bir resim dosyası yükleyin.');
     }
-  };
+  }
+};
+
+// Handle image drop (drag-and-drop functionality)
+const handleDrop = (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const isImage = file && file['type'].split('/')[0] === 'image';
+    if (isImage) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProductImage(reader.result);  // Görseli Base64 formatına çevirip kaydetme
+      };
+      reader.readAsDataURL(file);  // Base64 formatına çevir
+    } else {
+      alert('Lütfen geçerli bir resim dosyası yükleyin.');
+    }
+  }
+};
+
 
   // Handle form submission to add or update a product
   const handleSubmit = (e) => {
@@ -221,22 +245,11 @@ function ProductModal({ isOpen, onClose, currentMenu, menuId }) {
     onClose(products);
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      const isImage = file && file['type'].split('/')[0] === 'image';
-      if (isImage) {
-        setProductImage(URL.createObjectURL(file));
-      } else {
-        alert('Lütfen geçerli bir resim dosyası yükleyin.');
-      }
-    }
-  };
+// Handle drag over (Drag işlemi sırasında varsayılan davranışı engelle)
+const handleDragOver = (e) => {
+  e.preventDefault();
+};
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
 
   return isOpen ? (
     <ModalWrapper>
