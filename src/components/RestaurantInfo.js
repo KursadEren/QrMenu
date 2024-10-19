@@ -84,17 +84,28 @@ function RestaurantInfo() {
    useEffect(()=>{
        console.log(localStorage.getItem("menus"));
    },[])
-  const handleSubmit = async (e) => {
+   const handleSubmit = async (e) => {
     e.preventDefault();
-      
+  
     try {
-      const response = await axios.post('http://localhost:5000/api/restaurant', {
-        company_name:restaurantName,
-        phone:phoneNumber,
-        adress:address,
-        description:description,
-      });
-      alert(response.data.message)
+      const token = localStorage.getItem('token'); // Token'ı localStorage'dan alıyoruz
+  
+      const response = await axios.post(
+        'http://localhost:5000/api/restaurant',
+        {
+          company_name: restaurantName,
+          phone: phoneNumber,
+          address: address, // 'adress' değil, 'address'
+          description: description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Token'ı başlık olarak ekliyoruz
+          },
+        }
+      );
+  
+      alert(response.data.message);
       setRestaurantName('');
       setAddress('');
       setPhoneNumber('');
@@ -105,7 +116,8 @@ function RestaurantInfo() {
       setErrorMessage('Kafe bilgileri kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.');
     }
   };
-
+  
+  
   return (
     <Container>
       <Header>

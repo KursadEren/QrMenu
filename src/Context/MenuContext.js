@@ -4,6 +4,7 @@ export const MenuContext = createContext();
 
 const MenuProvider = ({ children }) => {
   const [menus, setMenus] = useState([]);
+  const [generalMenu, setGeneralMenuName] = useState(''); // Genel menü adı state
 
   // Menü ekleme fonksiyonu
   const addMenu = (menu) => {
@@ -81,8 +82,23 @@ const MenuProvider = ({ children }) => {
     setMenus(updatedMenus);
   };
 
+  // Genel menü adını güncelleme fonksiyonu
+  const updateGeneralMenuName = (newName) => {
+    setGeneralMenuName(newName);
+  };
+
   return (
-    <MenuContext.Provider value={{ menus, addMenu, deleteMenu, editMenu, addProductToMenu, deleteProductFromMenu, editProductInMenu }}>
+    <MenuContext.Provider value={{
+      menus,
+      generalMenu, // Genel menü adı state'i
+      addMenu,
+      deleteMenu,
+      editMenu,
+      addProductToMenu,
+      deleteProductFromMenu,
+      editProductInMenu,
+      updateGeneralMenuName // Genel menü adı güncelleme fonksiyonu
+    }}>
       {children}
     </MenuContext.Provider>
   );

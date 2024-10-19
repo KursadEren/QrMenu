@@ -26,11 +26,8 @@ const MenuImage = styled.img`
 const ImageUploader = ({ image, setImage }) => {
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImage(reader.result); // Yalnızca bu bileşende kullanılan state'i güncelle
-    };
-    reader.readAsDataURL(file);
+    const imageUrl = URL.createObjectURL(file);  // Geçici URL oluşturma
+    setImage(imageUrl);  // Geçici URL'i kaydet
   }, [setImage]);
 
   const { getRootProps, getInputProps } = useDropzone({

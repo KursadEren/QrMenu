@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { MenuContext } from '../Context/MenuContext';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 import ImageUploader from './ImageUploader'; // ImageUploader bileşenini ekliyoruz
+import { useAuth } from '../Context/AuthContext';
 
 const Container = styled.div`
   padding: 20px;
@@ -299,7 +300,7 @@ const ProductModal = ({ isOpen, onClose, menuId }) => {
     setProductPrice('');
     setProductDescription('');
     setProductImage(null); // Ürün görselini sıfırlıyoruz
-    onClose(); // Modal kapatılıyor
+    
   };
 
   return isOpen ? (
@@ -341,7 +342,7 @@ const ProductModal = ({ isOpen, onClose, menuId }) => {
   ) : null;
 };
 function AddMenu() {
-  const [menuName, setMenuName] = useState('');
+  const [categoryName, setCategoryName] = useState('');
   const [menuImage, setMenuImage] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editProductModalOpen, setEditProductModalOpen] = useState(false);
@@ -349,8 +350,9 @@ function AddMenu() {
   const [currentMenuId, setCurrentMenuId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-
-  const { menus, addMenu, deleteMenu, editMenu, deleteProductFromMenu, editProductInMenu } = useContext(MenuContext);
+  const [generalMenuName, setGeneralMenuName] = useState('');
+  const { menus, addMenu, deleteMenu, editMenu, updateGeneralMenuName, generalMenu,deleteProductFromMenu,editProductInMenu } = useContext(MenuContext);
+  const {token } = useAuth();
 
   const handleAddMenu = (e) => {
     e.preventDefault();
@@ -362,22 +364,24 @@ function AddMenu() {
     if (isEditing) {
       const updatedMenu = {
         id: currentMenuId,
-        name: menuName,
+        name: categoryName,
         image: menuImage,
         products: currentMenu ? currentMenu.products : []
       };
       editMenu(currentMenuId, updatedMenu);
       setIsEditing(false);
+
     } else {
       const newMenuId = Date.now();
-      const newMenu = { id: newMenuId, name: menuName, image: menuImage, products: [] };
+      const newMenu = { id: newMenuId, name: categoryName, image: menuImage, products: [] };
       addMenu(newMenu);
       setCurrentMenuId(newMenuId);
       setCurrentMenu(newMenu);
       setModalOpen(true);
+      updateGeneralMenuName(generalMenuName)
     }
 
-    setMenuName('');
+    setCategoryName('');
     setMenuImage(null);
   };
 
@@ -398,7 +402,7 @@ function AddMenu() {
   const handleEdit = (menuId) => {
     const selectedMenu = menus.find(menu => menu.id === menuId);
     if (selectedMenu) {
-      setMenuName(selectedMenu.name);
+       setCategoryName(selectedMenu.name);
       setMenuImage(selectedMenu.image);
       setCurrentMenuId(menuId);
       setIsEditing(true);
@@ -422,23 +426,67 @@ function AddMenu() {
     setEditProductModalOpen(false);
   };
 
+  //menu kaydetme işlemi 
+  const handleSaveAll = async () => {
+    const allData = {
+      generalMenu,
+      menus, // Tüm menü ve ürünleri içeren state
+    };
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/menu', { // Burayı localhost:5000 olarak değiştirin
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Kullanıcının token'ı burada olacak
+        },
+        body: JSON.stringify(allData)
+      });
+   
+      const result = await response.json();
+      console.log('API Cevabı:', result); // API cevabını kontrol etmek için log ekleyin
+   
+      if (response.ok) {
+        alert('Tüm menü ve kategoriler başarıyla kaydedildi!');
+      } else {
+        console.error('Kaydetme sırasında bir hata oluştu:', result.message);
+      }
+    } catch (error) {
+      console.error('Bir hata oluştu:', error);
+    }
+   };
+   
+  
+ 
   return (
     <Container>
       <Header>{isEditing ? 'Menüyü Düzenle' : 'Menü Oluştur'}</Header>
       <form onSubmit={handleAddMenu}>
+        
         <Input
           type="text"
-          value={menuName}
-          onChange={(e) => setMenuName(e.target.value)}
+          value={categoryName}
+          onChange={(e) => setCategoryName(e.target.value)}
           placeholder="Menü adı girin"
           required
         />
+        <Input
+  type="text"
+  value={generalMenuName}
+  onChange={(e) => setGeneralMenuName(e.target.value)}
+  placeholder="Genel Menü adı girin"
+  required
+/>
+
+
+
 
         {/* ImageUploader bileşeni burada kullanılıyor */}
         <ImageUploader image={menuImage} setImage={setMenuImage} />
 
         <Button type="submit">{isEditing ? 'Güncelle' : 'Menü Ekle'}</Button>
       </form>
+      <Button type="button" onClick={handleSaveAll}>Tüm Menüyü Kaydet</Button>
 
       <h2>Oluşturulan Menüler</h2>
       <MenuList>
@@ -510,6 +558,7 @@ function AddMenu() {
           onSave={handleSaveProduct}
         />
       )}
+      
     </Container>
   );
 }

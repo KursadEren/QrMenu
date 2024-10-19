@@ -1,8 +1,8 @@
-// src/components/Dashboard.js
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 import { FaTachometerAlt } from 'react-icons/fa';
+
 
 // Stil bileşenleri
 const DashboardContainer = styled.div`
@@ -53,14 +53,16 @@ const InfoValue = styled.p`
   margin-top: 10px;
 `;
 
+
+
 function Dashboard() {
   // State değişkenleri tanımlama
   const [qrScanCount, setQrScanCount] = useState(0); // QR kod tarama sayısı
   const [siteVisitCount, setSiteVisitCount] = useState(0); // Site ziyaret sayısı
   const [data, setData] = useState([]); // Grafik verisi
-
-  // Veri alma fonksiyonu (bu fonksiyonu API çağrısı ile değiştirebilirsiniz)
+ 
   useEffect(() => {
+    // Token'ı console'da görmek için
     // Örnek veriler
     setQrScanCount(42); // Örnek QR kod tarama sayısı
     setSiteVisitCount(120); // Örnek site ziyaret sayısı
@@ -92,6 +94,7 @@ function Dashboard() {
           <InfoValue>{siteVisitCount}</InfoValue>
         </InfoBox>
       </InfoBoxContainer>
+
       {/* Grafik Gösterimi */}
       <LineChart width={600} height={300} data={data}>
         <Line type="monotone" dataKey="value" stroke="#8884d8" />
@@ -100,6 +103,8 @@ function Dashboard() {
         <YAxis />
         <Tooltip />
       </LineChart>
+
+      
     </DashboardContainer>
   );
 }
